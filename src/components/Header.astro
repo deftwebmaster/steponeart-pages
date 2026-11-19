@@ -1,0 +1,148 @@
+---
+import { Image } from 'astro:assets';
+import mark from '../assets/brand/mark-mountains.png';
+import { settings } from '../lib/settings';
+
+interface Props {
+  current?: 'artwork' | 'purpose' | 'donate';
+}
+const { current } = Astro.props;
+const links = [
+  { href: '/artwork/', label: 'Artwork', key: 'artwork' },
+  { href: '/our-purpose/', label: 'Our purpose', key: 'purpose' },
+  { href: '/donate-art/', label: 'Donate art', key: 'donate' },
+] as const;
+
+// "Step One Art" gets its middle word set in italic; any other name is shown as-is.
+const words = settings.siteName.split(' ');
+const styled = words.length === 3;
+---
+<header class="site-header container">
+  <a class="brand" href="/" aria-label={`${settings.siteName}, home`}>
+    <Image src={mark} alt="" widths={[80, 160, 240]} sizes="80px" format="webp" class="brand__mark" loading="eager" />
+    <span class="brand__text">
+      <span class="brand__name">
+        {styled ? (<>{words[0]} <em>{words[1]}</em> {words[2]}</>) : settings.siteName}
+      </span>
+      <span class="brand__tag">You are worth it · and you can do it</span>
+    </span>
+  </a>
+  <nav aria-label="Main">
+    <ul>
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.href} aria-current={current === link.key ? 'page' : undefined}>
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    flex-wrap: wrap;
+    padding-block: 1.35rem 1.2rem;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.95rem;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .brand__mark {
+    width: 5.25rem;
+    height: auto;
+    flex: none;
+    /* Sits on the same baseline as the name, like a small engraved vignette. */
+    margin-top: 0.15rem;
+  }
+  .brand__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding-left: 0.95rem;
+    border-left: 1px solid var(--line-strong);
+  }
+  .brand__name {
+    font-family: var(--font-serif);
+    font-size: clamp(1.6rem, 2.7vw, 2.05rem);
+    font-weight: 420;
+    line-height: 1;
+    letter-spacing: 0.005em;
+    white-space: nowrap;
+    font-variation-settings: 'opsz' 60;
+  }
+  .brand__name em {
+    font-style: italic;
+    font-weight: 380;
+    color: var(--accent-strong);
+    padding-inline: 0.02em;
+  }
+  .brand__tag {
+    font-family: var(--font-sans);
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    white-space: nowrap;
+  }
+  .brand:hover .brand__name {
+    color: var(--accent-strong);
+  }
+  .brand:hover .brand__name em {
+    color: var(--text);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 2.1rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav a {
+    display: inline-block;
+    padding-block: 0.4rem;
+    font-size: 1rem;
+    text-decoration: none;
+    color: var(--text);
+    border-bottom: 1px solid transparent;
+  }
+  nav a:hover {
+    border-bottom-color: var(--line-strong);
+  }
+  nav a[aria-current='page'] {
+    border-bottom-color: var(--accent);
+  }
+  @media (max-width: 34rem) {
+    .brand__mark {
+      width: 4rem;
+    }
+    .brand__tag {
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+    }
+    .site-header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding-block: 1rem 0.6rem;
+    }
+    ul {
+      gap: 0.1rem 1.5rem;
+    }
+    nav a {
+      padding-block: 0.55rem;
+    }
+  }
+</style>

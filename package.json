@@ -1,0 +1,29 @@
+{
+  "name": "steponeart24",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Step One Art — static artwork showcase for StepOneArt24.com",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build && node scripts/verify-dist.mjs",
+    "preview": "astro preview",
+    "check": "astro check",
+    "logo:prepare": "node scripts/prepare-logo.mjs",
+    "photos:prepare": "node scripts/prepare-artwork-photos.mjs",
+    "export:concept": "npm run build && node scripts/make-portable.mjs --base=/concept-one/ exports/concept-one && cd exports/concept-one && rm -f ../steponeart-concept-one.zip && zip -qr -X ../steponeart-concept-one.zip . -x .DS_Store .htaccess"
+  },
+  "dependencies": {
+    "@fontsource-variable/nunito-sans": "5.3.0",
+    "@fontsource-variable/source-serif-4": "5.3.1",
+    "astro": "7.4.12"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.12",
+    "sharp": "0.35.5",
+    "typescript": "6.0.3"
+  }
+}

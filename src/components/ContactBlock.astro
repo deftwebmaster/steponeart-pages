@@ -1,0 +1,55 @@
+---
+import ArrowIcon from './ArrowIcon.astro';
+import { mailto } from '../lib/artwork';
+import { contactEmail } from '../lib/settings';
+
+interface Props {
+  subject: string;
+  body: string;
+  label: string;
+}
+const { subject, body, label } = Astro.props;
+const href = mailto(subject, body);
+---
+{
+  href ? (
+    <div class="contact">
+      <a class="button" href={href}>
+        {label} <ArrowIcon />
+      </a>
+      <p class="contact__note">
+        Opens your email app with a short message started for you. Or write to <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.
+      </p>
+    </div>
+  ) : (
+    <div class="contact contact--unavailable" role="note">
+      <p><strong>Online contact isn’t set up yet.</strong></p>
+      <p>An email address for inquiries hasn’t been added to the site. Please check back soon.</p>
+    </div>
+  )
+}
+
+<style>
+  .contact__note {
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-soft);
+    overflow-wrap: anywhere;
+  }
+  .contact__note a {
+    color: var(--accent-strong);
+  }
+  .contact--unavailable {
+    padding: 1rem 1.15rem;
+    background: var(--bg-soft);
+    border-left: 2px solid var(--line-strong);
+    color: var(--text-muted);
+    max-width: 34rem;
+  }
+  .contact--unavailable strong {
+    color: var(--text);
+  }
+  .contact--unavailable p + p {
+    margin-top: 0.4rem;
+  }
+</style>

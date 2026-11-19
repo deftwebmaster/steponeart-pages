@@ -1,0 +1,30 @@
+---
+interface Props {
+  text: string;
+}
+const { text } = Astro.props;
+---
+<aside class="demo-notice" aria-label="Preview notice">
+  <p class="container"><span class="demo-notice__tag">Preview</span> {text}</p>
+</aside>
+
+<style>
+  .demo-notice {
+    background: #ece5d8;
+    border-bottom: 1px solid var(--line);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+  .demo-notice p {
+    padding-block: 0.55rem;
+  }
+  .demo-notice__tag {
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    margin-right: 0.4rem;
+  }
+</style>

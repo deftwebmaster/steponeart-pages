@@ -1,0 +1,96 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+
+const body = [
+  'Hello,',
+  '',
+  "I'd like to ask about contributing a piece of artwork to Step One Art.",
+  '',
+  'Artist name:',
+  'Medium (e.g. oil on canvas, photograph, pencil):',
+  'Dimensions (height × width, and depth if relevant):',
+  'Framed or unframed:',
+  'Condition (any damage, repairs or wear):',
+  '',
+  "I've attached a few photos, including the whole piece, a close-up, and the back.",
+  '',
+  'Thank you,',
+].join('\n');
+---
+<Base
+  title="Donate art"
+  description="How to ask about contributing a piece of artwork to Step One Art, whose sales help pay rent for residents of sober living."
+  current="donate"
+>
+  <div class="container">
+    <header class="page-head">
+      <p class="eyebrow">Donate art</p>
+      <h1>Contribute a piece.</h1>
+      <p>
+        If you have artwork you’d like to pass on, it could help someone pay rent. Here’s how to ask about contributing it.
+      </p>
+    </header>
+    <hr class="rule" />
+    <div class="layout section">
+      <div class="prose">
+        <h2>Start with an email</h2>
+        <p>Send a short note with photos and a few details about the piece:</p>
+        <ul>
+          <li><strong>Photos</strong>: the whole piece straight on, a close-up, and the back. Daylight works best.</li>
+          <li><strong>Artist name</strong>, or “unknown” if you’re not sure.</li>
+          <li><strong>Dimensions</strong>: height × width, and depth for framed or 3D work.</li>
+          <li><strong>Medium</strong>: oil, acrylic, watercolor, photograph, print, drawing, and so on.</li>
+          <li><strong>Condition</strong>: any damage, repairs, fading or wear, and whether it’s framed.</li>
+        </ul>
+        <h2>What happens next</h2>
+        <p>
+          Each piece is considered individually, and not every submission can be accepted. Please don’t send or drop off artwork until
+          you’ve heard that it can be taken.
+        </p>
+        <p>
+          If a piece is accepted, it’s listed on this site as donated artwork, and the proceeds from its sale help pay rent for residents of
+          sober living.
+        </p>
+        <h2>A note on taxes</h2>
+        <p>
+          Step One Art doesn’t provide tax receipts or advice, and contributing a piece shouldn’t be assumed to be tax deductible.
+        </p>
+      </div>
+      <aside class="side" aria-label="Contact">
+        <h2 class="side__heading">Ask about contributing</h2>
+        <ContactBlock subject="Artwork donation inquiry" body={body} label="Email about a piece" />
+      </aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+    gap: 3rem;
+    align-items: start;
+  }
+  .prose h2:first-child {
+    margin-top: 0;
+  }
+  .side {
+    padding-left: 2rem;
+    border-left: 1px solid var(--line);
+  }
+  .side__heading {
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+  }
+  @media (max-width: 48rem) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .side {
+      padding-left: 0;
+      border-left: 0;
+      order: -1;
+    }
+  }
+</style>

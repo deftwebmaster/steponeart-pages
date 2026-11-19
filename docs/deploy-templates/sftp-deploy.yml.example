@@ -1,0 +1,43 @@
+# TEMPLATE — not active. Copy to .github/workflows/deploy-sftp.yml only after
+# the hosting account exists and these repository secrets are set
+# (GitHub → Settings → Secrets and variables → Actions):
+#   DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_PATH (e.g. /home/user/public_html)
+# The job fails (red X) if the upload fails; it never reports success without uploading.
+name: Deploy (SFTP/rsync)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Upload dist/ with rsync over SSH
+        env:
+          SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER: ${{ secrets.DEPLOY_USER }}
+          TARGET: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          install -m 600 /dev/null ~/.ssh_deploy_key
+          printf '%s\n' "$SSH_KEY" > ~/.ssh_deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null || { mkdir -p ~/.ssh; ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts; }
+          rsync -az --delete -e "ssh -i ~/.ssh_deploy_key" dist/ "$USER@$HOST:$TARGET/"

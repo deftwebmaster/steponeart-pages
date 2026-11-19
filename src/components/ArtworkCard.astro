@@ -1,0 +1,134 @@
+---
+import { Picture } from 'astro:assets';
+import { artworkPath, categoryValue, formatPrice, type Artwork } from '../lib/artwork';
+
+interface Props {
+  artwork: Artwork;
+  headingLevel?: 'h2' | 'h3';
+  /** Load eagerly (e.g. first row visible on load). */
+  eager?: boolean;
+}
+const { artwork, headingLevel = 'h3', eager = false } = Astro.props;
+const { data } = artwork;
+const Heading = headingLevel;
+
+// Fill the frame when the photo is close to its shape; otherwise show the
+// whole artwork (no cropping) on a soft background.
+const BOX_RATIO = 7 / 5;
+const ratio = data.image.width / data.image.height;
+const fit = Math.abs(ratio / BOX_RATIO - 1) <= 0.12 ? 'cover' : 'contain';
+const status = data.availability.toLowerCase();
+---
+<li class="card" data-category={categoryValue(data.category)} data-status={status}>
+  <div class={`card__media card__media--${fit}`}>
+    <Picture
+      src={data.image}
+      alt={data.imageAlt}
+      widths={[360, 560, 800]}
+      sizes="(min-width: 64rem) 360px, (min-width: 40rem) 46vw, 92vw"
+      formats={['avif', 'webp']}
+      fallbackFormat="jpg"
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+  </div>
+  <div class="card__body">
+    <Heading class="card__title"><a href={artworkPath(artwork)}>{data.title}</a></Heading>
+    <p class="card__artist">by {data.artist}</p>
+    <p class="card__meta">
+      <span class:list={['card__price', { 'card__price--request': data.price === undefined }]}>{formatPrice(data.price)}</span>
+      <span class={`card__status card__status--${status}`}>{data.availability}</span>
+    </p>
+  </div>
+</li>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .card__media {
+    aspect-ratio: 7 / 5;
+    background: var(--surface-art);
+    overflow: hidden;
+  }
+  .card__media :global(picture) {
+    display: block;
+    height: 100%;
+  }
+  .card__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+  .card__media--contain :global(img) {
+    object-fit: contain;
+  }
+  .card:hover .card__media--cover :global(img) {
+    transform: scale(1.015);
+  }
+  .card__body {
+    padding-top: 0.8rem;
+  }
+  .card__title {
+    font-size: 1.4rem;
+    line-height: 1.2;
+  }
+  .card__title a {
+    text-decoration: none;
+  }
+  /* Make the whole card clickable while keeping a single, short link name. */
+  .card__title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .card__title a:focus-visible {
+    outline: none;
+  }
+  .card:has(a:focus-visible) {
+    outline: 2px solid var(--focus);
+    outline-offset: 6px;
+  }
+  .card:hover .card__title a {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+  .card__artist {
+    margin-top: 0.15rem;
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+  }
+  .card__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-top: 0.2rem;
+  }
+  .card__price {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .card__price--request {
+    font-weight: 400;
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+  }
+  .card__status {
+    font-size: 0.875rem;
+    color: var(--accent);
+  }
+  .card__status--reserved {
+    color: #7a5a2c;
+  }
+  .card__status--sold {
+    color: var(--sold);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.95rem;
+  }
+</style>

@@ -1,0 +1,239 @@
+/* Step One Art — global styles. Plain CSS, no framework. */
+
+:root {
+  --bg: #faf7f1;
+  --bg-soft: #f3eee5;
+  --surface-art: #efe9df; /* behind artwork that does not fill its box */
+  --text: #1d2635;
+  --text-muted: #4b5462;
+  --text-soft: #5d6570;
+  --accent: #4b6880;
+  --accent-strong: #3a5469;
+  --line: #d8d1c5;
+  --line-strong: #bdb4a6;
+  --focus: #1f5f99;
+  --sold: #676b72;
+
+  --font-serif: 'Source Serif 4 Variable', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --font-sans: 'Nunito Sans Variable', 'Avenir Next', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --container: 72.5rem;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --radius: 3px;
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+img,
+picture,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 450;
+  line-height: 1.1;
+  letter-spacing: -0.012em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.container {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  margin-inline: auto;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  background: var(--text);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Buttons and text links */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.7rem 1.75rem;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  font: inherit;
+  font-size: 1.0625rem;
+  letter-spacing: 0.005em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.button:hover {
+  background: var(--accent-strong);
+  border-color: var(--accent-strong);
+}
+.button--quiet {
+  background: transparent;
+  color: var(--accent-strong);
+}
+.button--quiet:hover {
+  background: var(--bg-soft);
+  color: var(--accent-strong);
+}
+
+.arrow {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--accent-strong);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.15rem;
+}
+.text-link:hover {
+  color: var(--text);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+/* Long-form copy (purpose, donate, descriptions) */
+.prose {
+  max-width: 38rem;
+  color: var(--text-muted);
+}
+.prose > * + * {
+  margin-top: 1.1em;
+}
+.prose h2 {
+  color: var(--text);
+  font-size: 1.6rem;
+  margin-top: 2.2rem;
+}
+.prose strong {
+  color: var(--text);
+  font-weight: 650;
+}
+.prose ul {
+  padding-left: 1.2rem;
+}
+.prose li + li {
+  margin-top: 0.35rem;
+}
+.prose a {
+  color: var(--accent-strong);
+}
+
+.page-head {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(1.5rem, 3vw, 2.25rem);
+}
+.page-head h1 {
+  font-size: clamp(2.25rem, 5vw, 3.4rem);
+}
+.page-head p {
+  margin-top: 1rem;
+  max-width: 36rem;
+  color: var(--text-muted);
+  font-size: 1.125rem;
+}
+
+.section {
+  padding-block: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

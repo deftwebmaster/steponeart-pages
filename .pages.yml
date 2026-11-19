@@ -1,0 +1,235 @@
+# Pages CMS configuration — https://pagescms.org/docs/configuration/
+# Field names here must match the schema in src/content.config.ts.
+
+media:
+  - name: artwork
+    label: Artwork photos
+    input: src/assets/artwork
+    # Written into content files as "/src/assets/artwork/<file>", which the
+    # site build resolves from the project root and optimizes.
+    output: /src/assets/artwork
+    extensions: [jpg, jpeg, png, webp]
+    rename: safe
+
+content:
+  - name: artwork
+    label: Artwork
+    type: collection
+    path: src/content/artwork
+    format: yaml-frontmatter
+    # Web address comes from the filename (slugified title). Shown only when
+    # creating so the client can tweak it once; later title edits won't rename it.
+    filename:
+      template: "{fields.title}.md"
+      field: create
+    view:
+      primary: title
+      fields: [title, availability, price, published]
+      sort: [dateAdded, title, price]
+      search: [title, artist]
+      default:
+        sort: dateAdded
+        order: desc
+    fields:
+      # Essentials first — title, description, price, photo — so the client
+      # can add a listing without scrolling past technical fields.
+      - name: title
+        label: Title
+        type: string
+        required: true
+        options: { maxlength: 120 }
+
+      - name: summary
+        label: Description
+        description: One or two sentences. Shown on the artwork page and in search/sharing previews.
+        type: text
+        required: true
+        options: { maxlength: 300 }
+
+      - name: price
+        label: Price (USD)
+        description: Numbers only, e.g. 450. Leave empty to show "Price on request".
+        type: number
+        options: { min: 0 }
+
+      - name: availability
+        label: Availability
+        description: Choose Sold or Reserved to stop purchase inquiries for this piece.
+        type: select
+        required: true
+        options:
+          values: [Available, Reserved, Sold]
+
+      - name: image
+        label: Main photo
+        description: JPG, PNG or WebP. On iPhone, see the editing guide if a photo won't upload (HEIC).
+        type: image
+        required: true
+        options:
+          media: artwork
+          extensions: [jpg, jpeg, png, webp]
+
+      - name: imageAlt
+        label: Main photo description (alt text)
+        description: Describe what the photo shows for people using screen readers, e.g. "Oil painting of a green field under a cloudy blue sky."
+        type: string
+        required: true
+        options: { maxlength: 250 }
+
+      - name: artist
+        label: Artist
+        description: The artist's name as it should appear, e.g. "John Hyder" or "Anonymous donor".
+        type: string
+        required: true
+        default: John Hyder
+
+      - name: source
+        label: Source
+        type: select
+        required: true
+        options:
+          values:
+            - name: john
+              label: John's original
+            - name: donated
+              label: Donated artwork
+
+      - name: category
+        label: Category
+        description: Gallery filters are built from the categories that have published work.
+        type: select
+        required: true
+        options:
+          values: [Paintings, Photography, Drawings, Prints, Mixed media, Sculpture, Other]
+
+      - name: medium
+        label: Medium
+        description: e.g. "Ink on paper", "Graphite on paper", "Giclée print". Leave empty if unsure.
+        type: string
+
+      - name: dimensions
+        label: Dimensions
+        description: Height × width, e.g. "12 × 9 in". Leave empty if not measured yet.
+        type: string
+
+      - name: framing
+        label: Framing
+        description: e.g. "Framed in natural oak; ready to hang" or "Unframed"
+        type: string
+
+      - name: gallery
+        label: More photos
+        description: Optional extra views — close-ups, the piece on a wall, the back or signature.
+        type: object
+        list:
+          max: 8
+          collapsible:
+            collapsed: true
+            summary: "Photo {index}"
+        fields:
+          - name: image
+            label: Photo
+            type: image
+            required: true
+            options:
+              media: artwork
+              extensions: [jpg, jpeg, png, webp]
+          - name: alt
+            label: Photo description (alt text)
+            type: string
+            required: true
+            options: { maxlength: 250 }
+
+      - name: body
+        label: Longer description
+        description: Optional. Background, condition notes, anything a buyer would want to know.
+        type: rich-text
+        options:
+          format: markdown
+          media: false
+
+      - name: featured
+        label: Feature on the homepage
+        description: The homepage shows up to six featured pieces, newest first.
+        type: boolean
+        default: false
+
+      - name: published
+        label: Published
+        description: Untick to keep this listing as a draft. Drafts never appear on the website.
+        type: boolean
+        default: true
+
+      - name: dateAdded
+        label: Date added
+        type: date
+        required: true
+        options:
+          format: yyyy-MM-dd
+
+  - name: settings
+    label: Site settings
+    type: file
+    path: src/data/settings.json
+    format: json
+    fields:
+      - name: siteName
+        label: Site name
+        type: string
+        required: true
+      - name: siteDescription
+        label: Site description
+        description: Used by search engines and link previews.
+        type: text
+        required: true
+        options: { maxlength: 300 }
+      - name: contactEmail
+        label: Contact email
+        description: >-
+          Where purchase and donation inquiries go. Leave empty to show
+          "inquiries aren't open online yet" instead of email buttons.
+        type: string
+        pattern:
+          regex: "^$|^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+          message: Enter a full email address, or leave empty.
+      - name: heroHeading
+        label: Homepage heading
+        type: string
+        required: true
+      - name: heroText
+        label: Homepage introduction
+        type: text
+      - name: missionHeading
+        label: Mission heading
+        type: string
+        required: true
+      - name: missionText
+        label: Mission text
+        type: text
+      - name: socialLinks
+        label: Social links
+        description: Optional. Shown in the footer.
+        type: object
+        list: true
+        fields:
+          - name: label
+            label: Name (e.g. Instagram)
+            type: string
+            required: true
+          - name: url
+            label: Full web address
+            type: string
+            required: true
+            pattern:
+              regex: "^https?://"
+              message: Start with https://
+      - name: demoMode
+        label: Demo mode
+        description: >-
+          ON shows the "sample content" notice and hides every page from search
+          engines. Turn OFF at launch, after the sample artworks are removed.
+        type: boolean
+        default: false
+      - name: demoNotice
+        label: Demo notice text
+        type: string

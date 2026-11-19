@@ -1,0 +1,17 @@
+# Used only by Apache-based shared hosting; ignored by other hosts.
+ErrorDocument 404 /404.html
+DirectoryIndex index.html
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  # Fingerprinted build assets never change, so they can be cached for a year.
+  <FilesMatch "^assets/">
+    ExpiresDefault "access plus 1 year"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/assets/#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+</IfModule>

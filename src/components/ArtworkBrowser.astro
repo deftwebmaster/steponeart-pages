@@ -1,0 +1,410 @@
+---
+/**
+ * Artwork grid with category (and optional availability) filters.
+ *
+ * Filtering works without JavaScript: the filters are radio buttons and the
+ * generated CSS below hides non-matching cards with :has(). The small script
+ * adds a result count for screen readers, empty states, show/hide of the
+ * reset button, and keeps the URL in sync (?category=…&status=…) so filtered
+ * views can be shared.
+ */
+import ArtworkCard from './ArtworkCard.astro';
+import { categoriesOf, type Artwork } from '../lib/artwork';
+
+interface Props {
+  id: string;
+  artworks: Artwork[];
+  heading: string;
+  /** Show the Available / Reserved / Sold / All filter. */
+  statusFilter?: boolean;
+  defaultStatus?: 'available' | 'all';
+  headingLevel?: 'h1' | 'h2';
+  syncUrl?: boolean;
+  intro?: string;
+  /** Show the "Showing N works" line visually (always announced to screen readers). */
+  showCount?: boolean;
+}
+
+const {
+  id,
+  artworks,
+  heading,
+  statusFilter = false,
+  defaultStatus = 'all',
+  headingLevel = 'h2',
+  syncUrl = false,
+  intro,
+  showCount = true,
+} = Astro.props;
+
+const Heading = headingLevel;
+const categories = categoriesOf(artworks);
+const statuses = [
+  { value: 'available', label: 'Available' },
+  { value: 'reserved', label: 'Reserved' },
+  { value: 'sold', label: 'Sold' },
+  { value: 'all', label: 'All' },
+];
+
+// Generated CSS: one hide rule per possible filter value.
+const scope = `[data-browser="${id}"]`;
+const css = [
+  ...categories.map(
+    (c) =>
+      `${scope}:has(input[name="category"][value="${c.value}"]:checked) .card:not([data-category="${c.value}"]){display:none}`,
+  ),
+  ...statuses
+    .filter((s) => s.value !== 'all')
+    .map(
+      (s) =>
+        `${scope}:has(input[name="status"][value="${s.value}"]:checked) .card:not([data-status="${s.value}"]){display:none}`,
+    ),
+].join('\n');
+
+const showCategoryFilter = categories.length > 1;
+const cardHeading = headingLevel === 'h1' ? 'h2' : 'h3';
+---
+<section class="browser" data-browser={id} data-sync-url={syncUrl ? '' : undefined} data-default-status={defaultStatus} aria-labelledby={`${id}-heading`}>
+  <style is:inline set:html={css}></style>
+  <div class="browser__head">
+    <div class="browser__title">
+      <Heading id={`${id}-heading`} class={headingLevel === 'h1' ? 'browser__h1' : 'browser__h2'}>{heading}</Heading>
+      {intro && <p class="browser__intro">{intro}</p>}
+    </div>
+    {
+      (showCategoryFilter || statusFilter) && (
+        <form class="filters" aria-label="Filter artwork" action="" method="get">
+          {showCategoryFilter && (
+            <fieldset class="tabs">
+              <legend class="visually-hidden">Category</legend>
+              <label class="tab">
+                <input class="visually-hidden" type="radio" name="category" value="all" checked />
+                <span>All works</span>
+              </label>
+              {categories.map((c) => (
+                <label class="tab">
+                  <input class="visually-hidden" type="radio" name="category" value={c.value} />
+                  <span>{c.label}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+          {statusFilter && (
+            <fieldset class="status">
+              <legend>Show</legend>
+              {statuses.map((s) => (
+                <label class="chip">
+                  <input class="visually-hidden" type="radio" name="status" value={s.value} checked={s.value === defaultStatus} />
+                  <span>{s.label}</span>
+                </label>
+              ))}
+            </fieldset>
+          )}
+        </form>
+      )
+    }
+  </div>
+
+  <div class:list={['browser__bar', { 'browser__bar--quiet': !showCount }]}>
+    <p class:list={['browser__count', { 'visually-hidden': !showCount }]} aria-live="polite" data-count></p>
+    <button class="browser__reset" type="button" data-reset hidden>Reset filters</button>
+  </div>
+
+  {
+    artworks.length > 0 ? (
+      <ul class="grid" role="list">
+        {artworks.map((a, i) => (
+          <ArtworkCard artwork={a} headingLevel={cardHeading} eager={i < 3 && headingLevel === 'h1'} />
+        ))}
+      </ul>
+    ) : (
+      <p class="empty">No artwork is listed yet. Please check back soon.</p>
+    )
+  }
+
+  <div class="empty" data-empty hidden>
+    <p data-empty-text>Nothing matches these filters right now.</p>
+    <button class="button button--quiet" type="button" data-reset>Show all available work</button>
+  </div>
+</section>
+
+<script>
+  type Filters = { category: string; status: string };
+
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-browser]')) {
+    const form = root.querySelector('form');
+    const cards = [...root.querySelectorAll<HTMLElement>('.card')];
+    const count = root.querySelector<HTMLElement>('[data-count]');
+    const empty = root.querySelector<HTMLElement>('[data-empty]');
+    const emptyText = root.querySelector<HTMLElement>('[data-empty-text]');
+    const resets = root.querySelectorAll<HTMLButtonElement>('[data-reset]');
+    const syncUrl = root.hasAttribute('data-sync-url');
+    const defaults: Filters = { category: 'all', status: root.dataset.defaultStatus ?? 'all' };
+    const hasStatus = !!root.querySelector('input[name="status"]');
+    if (!form || cards.length === 0) continue;
+
+    const read = (): Filters => {
+      const data = new FormData(form);
+      return {
+        category: String(data.get('category') ?? 'all'),
+        status: String(data.get('status') ?? defaults.status),
+      };
+    };
+
+    const labelFor = (name: string, value: string) =>
+      root.querySelector(`input[name="${name}"][value="${CSS.escape(value)}"] + span`)?.textContent?.trim() ?? value;
+
+    const set = (f: Filters) => {
+      for (const [name, value] of Object.entries(f)) {
+        const input = form.querySelector<HTMLInputElement>(`input[name="${name}"][value="${CSS.escape(value)}"]`);
+        if (input) input.checked = true;
+      }
+    };
+
+    const update = () => {
+      const f = read();
+      const visible = cards.filter(
+        (c) =>
+          (f.category === 'all' || c.dataset.category === f.category) &&
+          (f.status === 'all' || c.dataset.status === f.status),
+      );
+      const isDefault = f.category === defaults.category && f.status === defaults.status;
+      const catLabel = f.category === 'all' ? '' : ` in ${labelFor('category', f.category)}`;
+      const statusWord = hasStatus && f.status !== 'all' ? `${labelFor('status', f.status).toLowerCase()} ` : '';
+
+      if (count) {
+        count.textContent = `Showing ${plural(visible.length, `${statusWord}work`)}${catLabel}`;
+      }
+      if (empty && emptyText) {
+        empty.hidden = visible.length > 0;
+        if (!visible.length) {
+          emptyText.textContent =
+            isDefault && hasStatus
+              ? 'Nothing is available right now. Check back soon, or look through reserved and sold pieces.'
+              : `There are no ${statusWord}works${catLabel} right now.`;
+        }
+      }
+      resets.forEach((b) => {
+        if (b.closest('.browser__bar')) b.hidden = isDefault;
+      });
+
+      if (syncUrl) {
+        const url = new URL(location.href);
+        url.searchParams.delete('category');
+        url.searchParams.delete('status');
+        if (f.category !== defaults.category) url.searchParams.set('category', f.category);
+        if (hasStatus && f.status !== defaults.status) url.searchParams.set('status', f.status);
+        history.replaceState(null, '', url);
+      }
+    };
+
+    // Apply filters from the URL, e.g. /artwork/?category=paintings&status=all
+    if (syncUrl) {
+      const params = new URLSearchParams(location.search);
+      set({
+        category: params.get('category') ?? defaults.category,
+        status: params.get('status') ?? defaults.status,
+      });
+    }
+
+    form.addEventListener('change', update);
+    form.addEventListener('submit', (e) => e.preventDefault());
+    resets.forEach((b) =>
+      b.addEventListener('click', () => {
+        set(defaults);
+        update();
+        form.querySelector<HTMLInputElement>('input:checked')?.focus();
+      }),
+    );
+    update();
+  }
+</script>
+
+<style>
+  .browser__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 2.5rem;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .browser__title {
+    padding-bottom: 1rem;
+  }
+  .browser__h2 {
+    font-size: clamp(2rem, 3.6vw, 2.6rem);
+  }
+  .browser__h1 {
+    font-size: clamp(2.25rem, 5vw, 3.4rem);
+  }
+  .browser__intro {
+    margin-top: 0.75rem;
+    max-width: 34rem;
+    color: var(--text-muted);
+  }
+  .filters {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.6rem;
+  }
+  fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 2.25rem;
+  }
+  .tab span {
+    display: inline-block;
+    padding: 0.55rem 0.1rem 0.85rem;
+    border-bottom: 2px solid transparent;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+    white-space: nowrap;
+  }
+  .tab:hover span {
+    border-bottom-color: var(--line-strong);
+  }
+  .tab input:checked + span {
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+  .tab input:focus-visible + span,
+  .chip input:focus-visible + span {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+  .status {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    order: -1;
+  }
+  .status legend {
+    float: left;
+    margin-right: 0.35rem;
+    font-size: 0.875rem;
+    color: var(--text-soft);
+  }
+  .chip span {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    background: transparent;
+  }
+  .chip:hover span {
+    border-color: var(--accent);
+  }
+  .chip input:checked + span {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .browser__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.75rem;
+    padding-block: 0.5rem;
+  }
+  .browser__bar--quiet {
+    min-height: 0;
+    padding-block: 0;
+  }
+  .browser__bar--quiet:has(.browser__reset:not([hidden])) {
+    padding-block: 0.5rem 0;
+  }
+  .browser__count {
+    font-size: 0.9rem;
+    color: var(--text-soft);
+  }
+  .browser__reset {
+    font: inherit;
+    font-size: 0.9rem;
+    background: none;
+    border: 0;
+    padding: 0.4rem 0;
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+  .browser__reset[hidden] {
+    display: none;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(2rem, 3.5vw, 2.6rem) clamp(1.25rem, 3vw, 1.9rem);
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+  .browser__bar--quiet + .grid {
+    margin-top: 2.4rem;
+  }
+  .empty {
+    padding: 2.5rem 0 1rem;
+    color: var(--text-muted);
+  }
+  .empty[hidden] {
+    display: none;
+  }
+  .empty p {
+    margin-bottom: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.35rem;
+    color: var(--text);
+  }
+  @media (max-width: 60rem) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 48rem) {
+    .browser__head {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .browser__title {
+      padding-bottom: 0;
+    }
+    .filters {
+      align-items: flex-start;
+    }
+    .tabs {
+      gap: 0 1.5rem;
+    }
+  }
+  @media (max-width: 30rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .tabs {
+      gap: 0 0.85rem;
+    }
+    .tab span {
+      font-size: 0.95rem;
+    }
+    .chip span {
+      padding: 0.3rem 0.6rem;
+    }
+  }
+</style>

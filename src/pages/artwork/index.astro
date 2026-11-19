@@ -1,0 +1,41 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArtworkBrowser from '../../components/ArtworkBrowser.astro';
+import { artworkUrl, getArtworks } from '../../lib/artwork';
+import { SITE_URL } from '../../lib/settings';
+
+const artworks = await getArtworks();
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: 'Artwork',
+  url: `${SITE_URL}/artwork/`,
+  hasPart: artworks.map((a) => ({ '@type': 'VisualArtwork', name: a.data.title, url: artworkUrl(a) })),
+};
+---
+<Base
+  title="Artwork"
+  description="Browse original and donated artwork. Every sale helps pay rent for residents of sober living."
+  current="artwork"
+  structuredData={structuredData}
+>
+  <div class="container gallery">
+    <ArtworkBrowser
+      id="gallery"
+      heading="Artwork"
+      headingLevel="h1"
+      intro="Original and donated pieces. Proceeds help pay rent for residents of sober living."
+      artworks={artworks}
+      statusFilter
+      defaultStatus="available"
+      syncUrl
+    />
+  </div>
+</Base>
+
+<style>
+  .gallery {
+    padding-top: clamp(2.25rem, 5vw, 3.5rem);
+  }
+</style>
