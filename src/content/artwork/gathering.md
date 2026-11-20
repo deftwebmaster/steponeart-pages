@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Gathering)"
+title: "Gathering (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

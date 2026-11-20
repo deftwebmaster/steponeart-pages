@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Face in the Storm)"
+title: "Face in the Storm (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Bearded Portrait)"
+title: "Bearded Portrait (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

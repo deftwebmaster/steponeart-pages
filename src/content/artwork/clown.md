@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Clown)"
+title: "Clown (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

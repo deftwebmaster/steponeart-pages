@@ -1,5 +1,5 @@
 ---
-title: Pen & Ink (Desert Ruins)
+title: "Desert Ruins (Pen & Ink Drawing)"
 summary: A wide desert scene with bare trees, broken ground and distant hills,
   drawn in fine, busy pen strokes.
 availability: Available

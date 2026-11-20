@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Mountain Sketch)"
+title: "Mountain Sketch (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

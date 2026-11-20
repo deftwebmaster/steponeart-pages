@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Sun and the Watchers)"
+title: "Sun and the Watchers (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

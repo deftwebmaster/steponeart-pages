@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Faces in the Wood)"
+title: "Faces in the Wood (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

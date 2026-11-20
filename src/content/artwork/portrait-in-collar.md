@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Portrait in Open Collar)"
+title: "Portrait in Open Collar (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

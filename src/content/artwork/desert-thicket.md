@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Desert Thicket)"
+title: "Desert Thicket (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

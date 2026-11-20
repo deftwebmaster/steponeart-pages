@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Hillside Church)"
+title: "Hillside Church (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

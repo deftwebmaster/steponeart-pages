@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Canyon Wall)"
+title: "Canyon Wall (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

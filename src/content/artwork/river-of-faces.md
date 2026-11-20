@@ -1,5 +1,5 @@
 ---
-title: "Untitled (River of Faces)"
+title: "River of Faces (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

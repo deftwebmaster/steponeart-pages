@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Two Portraits)"
+title: "Two Portraits (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings

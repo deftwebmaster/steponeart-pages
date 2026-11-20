@@ -1,5 +1,5 @@
 ---
-title: "Untitled (Portrait with City)"
+title: "Portrait with City (Pen & Ink Drawing)"
 artist: John Hyder
 source: john
 category: Drawings
